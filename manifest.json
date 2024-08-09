@@ -1,0 +1,27 @@
+{
+    "name": "extension",
+    "description": "example description",
+    "version": "0.0.1",
+    "author": "Abhijeet Singh",
+    "manifest_version": 3,
+    "icons": {
+        "32": "./assets/icons/github32.png",
+        "64": "./assets/icons/github64.png",
+        "128": "./assets/icons/github128.png"
+    },
+    "action": {
+        "default_popup": "./popup/popup.html",
+        "default_icon": "./assets/icons/github32.png"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://leetcode.com/problems/*"
+            ],
+            "js": [
+                "scripts/leetcode.js"
+            ],
+            "run_at": "document_end"
+        }
+    ]
+}
