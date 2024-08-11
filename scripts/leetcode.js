@@ -6,7 +6,17 @@
     4. 
 
 */
-
+const BASE_URL = 'https://leetcode.com/problems';
+function getQuestionRoute() {
+    const url = window.location.href;
+    let route = '';
+    if (url.startsWith(BASE_URL)) {
+        const path = url.substring(BASE_URL.length);
+        const segments = path.split('/');
+        if (segments[1]) route = segments[1];
+    }
+    return route;
+}
 const languageExtension = {
     "C++": ".cpp",         // C++ source files
     "Java": ".java",       // Java source files
@@ -40,18 +50,23 @@ const config = {
 let submitBtn = null;
 let descriptionTab = null;
 let acceptedTab = null;
+let descriptionBtn = null;
 let i = 0;
 
 function main() {
     submitBtn = getSubmitBtn();
-    console.log(++i, submitBtn);
-    if (!submitBtn) return;
+    descriptionBtn = document.getElementById('description_tab');
+    if (!submitBtn || !descriptionBtn) return;
 
+    // go to description tab at least once to load the question description
+    descriptionBtn.click();
     observer.disconnect();
     submitBtn.onclick = () => {
         // Start polling after button click
         pollForTabs();
     };
+
+
 }
 
 observer = new MutationObserver(main);
@@ -63,17 +78,28 @@ function getSubmitBtn() {
     return btns[0];
 }
 
+function getDescriptionBtn() {
+    const tab_btns = [...document.querySelectorAll('.flexlayout__tab_button_content')];
+    for (const btn of tab_btns) {
+        if (btn.textContent === 'DescriptionDescription') {
+            return btn;
+        }
+    }
+    return null;
+}
+
 function pollForTabs() {
     const interval = 500; // Check every 500ms
-    const maxAttempts = 20; // Max number of attempts before giving up
+    const maxAttempts = 50; // Max number of attempts before giving up
     let attempts = 0;
 
     const intervalId = setInterval(() => {
         selectTabs();
-
+        console.log('attemps: ', attempts, 'acceptedTab:', Boolean(acceptedTab), 'descriptionTab:', Boolean(descriptionTab));
         if (acceptedTab && descriptionTab) {
             clearInterval(intervalId);
             console.log('Tabs found.');
+            isSubmissionAccepted();
             // run any function
         } else if (++attempts >= maxAttempts) {
             clearInterval(intervalId);
@@ -87,10 +113,8 @@ function selectTabs() {
 
     descriptionTab = null;
     acceptedTab = null;
-    let i = 0;
 
     for (const tab of tabs) {
-        console.log(++i, tab.textContent.slice(0, 20));
         if (/^\d+\. /.test(tab.textContent)) {
             descriptionTab = tab;
         } else if (tab.textContent.startsWith(' All Submissions')) {
@@ -98,11 +122,13 @@ function selectTabs() {
         }
     }
 
-    console.log('selected tabs');
-    console.log(descriptionTab);
-    console.log(acceptedTab);
 }
 
-function isSubmissionAccepted(){
-    
+function isSubmissionAccepted() {
+    console.log(descriptionTab?.textContent, acceptedTab?.textContent);
+    let container = acceptedTab.querySelector(".mx-auto.flex.w-full.max-w-\\[700px\\].flex-col.gap-4.px-4.py-3");
+    const observer = new MutationObserver(() => {
+        console.log(container);
+    })
+    observer.observe(container, { childList: true, subtree: true });
 }
